@@ -1,1 +1,69 @@
 
+# Setting Up IT Support-Only Network Drive Mapping in Active Directory
+
+## Introduction
+This guide outlines the step-by-step process to configure a network drive mapping exclusively for your IT Support team using Active Directory and Group Policy. By following these instructions, you will ensure that only IT Support staff have access to the designated shared folder.
+
+## Step 1: Create a Security Group for IT Support
+1. Open **Active Directory Users and Computers**.
+2. Right-click your **Users** container → **New** → **Group**.
+3. Name the group **IT Support Drive Access** (or a similar descriptive name).
+4. Set **Group Scope** to **Security Group** and **Group Type** to **Global**.
+5. Add all IT Support staff members to this group.
+
+## Step 2: Create the Shared Folder on the Server
+1. On your **file server**, create the folder (e.g., `D:\IT_Resources`).
+2. Right-click the folder → **Properties** → **Sharing** tab → **Share...**
+3. Set **Share Name** to `ITSupport` (resulting in `\\server\ITSupport`).
+4. Click **Permissions** → Add the **IT Support Drive Access** group with **Change/Read** permissions.
+5. Under the **Security** tab, add the same group and grant **Modify/Read NTFS** permissions.
+
+## Step 3: Create a Targeted Group Policy
+1. Open **Group Policy Management Console (GPMC)**.
+2. Right-click your **domain or IT Organizational Unit (OU)** → Select **"Create a GPO in this domain and Link it here"**.
+3. Name it **"IT Support Drive Mapping"**.
+
+## Step 4: Configure Drive Mapping with Security Filtering
+1. Edit the newly created **GPO**.
+2. Navigate to:
+   - `User Configuration → Preferences → Windows Settings → Drive Maps`.
+3. Right-click **Drive Maps** → **New** → **Mapped Drive**.
+4. Configure the following settings:
+   - **Action**: Create
+   - **Location**: `\\your-server\ITSupport` (replace with your actual share path)
+   - **Drive Letter**: `S:` (or another preferred letter)
+   - **Check** Reconnect
+5. In the **Security Filtering** tab of the main GPO window:
+   - Remove **"Authenticated Users"**.
+   - Add the **IT Support Drive Access** group.
+
+## Step 5: Optional - Implement Item-Level Targeting for Precision
+For more granular control over drive mapping:
+1. In the **Drive Map settings**, navigate to the **Common** tab.
+2. Check **"Item-level targeting"** → Click **Targeting...**
+3. Click **New Item** → **Security Group**.
+4. Select the **IT Support Drive Access** group.
+
+## Step 6: Testing the Configuration
+1. Log in as a user from the **IT Support team**.
+2. Open **Command Prompt** and run:
+   ```sh
+   gpupdate /force
+   ```
+3. Check if the `S:` drive (or the assigned letter) appears in **File Explorer**.
+
+## Conclusion
+Following this guide, you have successfully configured a network drive mapping limited to your IT Support team. This setup ensures controlled access to shared IT resources while maintaining security and efficiency.
+
+### Troubleshooting
+- Ensure users are correctly added to the **IT Support Drive Access** group.
+- Run `gpresult /r` to confirm policy application.
+- Verify network path accessibility from user devices.
+
+---
+**Author:** Musbaudeen Oyedeji  
+📧 Email: [oyedejimusbaudeen@gmail.com](mailto:oyedejimusbaudeen@gmail.com)  
+🔗 LinkedIn: [https://www.linkedin.com/in/moyedeji/](https://www.linkedin.com/in/moyedeji/)  
+🌐 Portfolio: [http://deen.com.ng/](http://deen.com.ng/)  
+📍 Country: Nigeria  
+📞 Contact: +2348140891605
